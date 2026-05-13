@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  mongo-db:
+    image: mongo:6.0
+    container_name: mern-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - backend-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mern-backend
+    restart: always
+    ports:
+      - "9090:9090"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - mongo-db
+    networks:
+      - backend-network
+      - frontend-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: mern-frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    env_file:
+      - ./frontend/.env
+    depends_on:
+      - backend
+    networks:
+      - frontend-network
+
+volumes:
+  mongo-data:
+
+networks:
+  frontend-network:
+  backend-network:
